@@ -54,6 +54,12 @@ while getopts "mtvrn:g" opt; do
   esac
 done
 
+# # Check if swarmenv command exists
+# if ! command -v swarmenv &> /dev/null; then
+#   echo "Error: swarmenv not found."
+#   exit 1
+# fi
+
 # Set simulation world description config file
 if [[ ${swarm} == "true" ]]; then
   simulation_config="config/world_swarm.yaml"
@@ -75,33 +81,8 @@ if [[ ${use_gnome} == "true" ]]; then
   tmuxinator_end="> ${tmp_file} && python3 utils/tmuxinator_to_genome.py -p ${tmp_file} && wait"
 fi
 
-### ---- Indrajit Mandal ---- ###
-# Date: 2024-06-10
-# Helper to start a detached tmux session that sources env and runs a command
-# start_tmux_with_env() {
-#   local session_name="$1"
-#   shift
-#   local cmd="$*"
-#   tmux new-session -d -s "${session_name}" bash -lc \
-#     "conda deactivate; \
-#      source \"\$HOME/Work/swarm/aerostack2_ws/.swarm/bin/activate\"; \
-#      source \"\$HOME/Work/swarm/aerostack2_ws/install/setup.zsh\"; \
-#      ${cmd}"
-# }
-start_tmux_with_env() {
-  local session_name="$1"
-  shift
-  local cmd="$*"
-
-  tmux new-session -d -s "${session_name}" bash -lc "
-    source \"$HOME/Work/swarm/aerostack2_ws/.swarm/bin/activate\"
-    source \"$HOME/Work/swarm/aerostack2_ws/install/setup.zsh\"
-    ${cmd}
-  "
-}
-
 # Launch aerostack2 ground station
-eval "tmuxinator ${tmuxinator_mode} -n ground_station -p tmuxinator/ground_station.yaml \
+eval "swarmenv && tmuxinator ${tmuxinator_mode} -n ground_station -p tmuxinator/ground_station.yaml \
   drone_namespace=${drones_namespace_comma} \
   keyboard_teleop=${keyboard_teleop} \
   rviz=${rviz} \

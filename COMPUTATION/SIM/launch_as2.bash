@@ -44,6 +44,12 @@ while getopts "mn:sg" opt; do
   esac
 done
 
+# Check if swarmenv command exists
+# if ! command -v swarmenv &> /dev/null; then
+#   echo "Error: swarmenv not found. Please source your ROS2/Aerostack2 workspace first."
+#   exit 1
+# fi
+
 # Set simulation world description config file
 if [[ ${swarm} == "true" ]]; then
   simulation_config="config/world_swarm.yaml"
@@ -76,6 +82,7 @@ for namespace in ${drone_namespaces[@]}; do
     drone_namespace=${namespace} \
     simulation_config_file=${simulation_config} \
     base_launch=${base_launch} \
+    pre_command='swarmenv' \
     ${tmuxinator_end}"
 
   sleep 0.1 # Wait for tmuxinator to finish
