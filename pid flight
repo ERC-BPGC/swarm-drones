@@ -1,0 +1,170 @@
+import logging
+import sys
+import time
+
+import cflib.crtp
+from cflib.crazyflie import Crazyflie
+from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
+from cflib.crazyflie.log import LogConfig
+from cflib.utils import uri_helper
+
+URI = uri_helper.uri_from_env(default='udp://192.168.43.42:2390')
+
+logging.basicConfig(level=logging.ERROR)
+
+# Global variables to store sensor data
+current_roll = 0.0
+current_pitch = 0.0
+current_yaw = 0.0
+
+def setup_logging(scf):
+    """Set up logging for attitude data"""
+    log_conf = LogConfig(name='Stabilizer', period_in_ms=50)
+    log_conf.add_variable('stabilizer.roll', 'float')
+    log_conf.add_variable('stabilizer.pitch', 'float')
+    log_conf.add_variable('stabilizer.yaw', 'float')
+    
+    scf.cf.log.add_config(log_conf)
+    log_conf.data_received_cb.add_callback(log_callback)
+    log_conf.start()
+    
+    return log_conf
+
+def log_callback(timestamp, data, logconf):
+    """Callback for logging data"""
+    global current_roll, current_pitch, current_yaw
+    current_roll = data.get('stabilizer.roll', 0.0)
+    current_pitch = data.get('stabilizer.pitch', 0.0)
+    current_yaw = data.get('stabilizer.yaw', 0.0)
+
+def hover_test(scf):
+    """
+    Hover with active attitude stabilization
+    """
+    commander = scf.cf.commander
+    platform = scf.cf.platform
+
+    # Setup logging
+    log_conf = setup_logging(scf)
+    time.sleep(1)  # Wait for initial data
+    
+    # Arming Step
+    print('Arming the drone...')
+    platform.send_arming_request(True)
+    time.sleep(0.5)
+    
+    # Unlock Commander
+    print('Unlocking commander...')
+    commander.send_setpoint(0, 0, 0, 0)
+    time.sleep(0.1)
+    
+    # Flight parameters - INCREASED THRUST
+    HOVER_THRUST = 5000  # Start here, increase if needed
+    HOVER_DURATION = 100000.0  # seconds
+    
+    # Stabilization gains - counteract drift
+    KP_ROLL = 1.3   # Proportional gain for roll correction
+    KP_PITCH = 0.85  # Proportional gain for pitch correction
+    
+    print('--- HOLD THE DRONE FIRMLY NOW ---')
+    print('Taking off...')
+    
+    # Gradual takeoff
+    start_time = time.time()
+    while time.time() - start_time < 2.0:
+        elapsed = time.time() - start_time
+        ramp_ratio = elapsed / 2.0
+        current_thrust = int(10001 + (HOVER_THRUST - 10001) * ramp_ratio)
+        
+        commander.send_setpoint(0, 0, 0, current_thrust)
+        time.sleep(0.02)
+    
+    print(f'Hovering at thrust {HOVER_THRUST} for {HOVER_DURATION} seconds...')
+    print('Actively stabilizing attitude...')
+    
+    hover_start = time.time()
+    
+    try:
+        while time.time() - hover_start < HOVER_DURATION:
+            # Calculate correction commands to counter drift
+            # Negative feedback: if roll is negative (left), command positive (right)
+            roll_cmd = -KP_ROLL * current_roll
+            pitch_cmd = -KP_PITCH * current_pitch
+            yaw_rate = 0  # No yaw rotation
+            
+            # Send stabilization commands
+            commander.send_setpoint(roll_cmd, pitch_cmd, yaw_rate, HOVER_THRUST)
+            
+            # Print status every 0.5 seconds
+            if int((time.time() - hover_start) * 2) % 10 == 0:
+                print(f'Thrust: {HOVER_THRUST} | Roll: {current_roll:.1f}° (cmd: {roll_cmd:.1f}) | '
+                      f'Pitch: {current_pitch:.1f}° (cmd: {pitch_cmd:.1f}) | Yaw: {current_yaw:.1f}°')
+            
+            time.sleep(0.02)
+    
+    except KeyboardInterrupt:
+        print('\nEmergency stop!')
+    
+    print('Landing...')
+    start_time = time.time()
+    while time.time() - start_time < 1.5:
+        elapsed = time.time() - start_time
+        ramp_ratio = 1.0 - (elapsed / 1.5)
+        current_thrust = int(10001 + (HOVER_THRUST - 10001) * ramp_ratio)
+        
+        # Keep stabilization active during landing
+        roll_cmd = -KP_ROLL * current_roll
+        pitch_cmd = -KP_PITCH * current_pitch
+        commander.send_setpoint(roll_cmd, pitch_cmd, 0, current_thrust)
+        time.sleep(0.02)
+    
+    print('Shutting off motors.')
+    commander.send_setpoint(0, 0, 0, 0)
+    time.sleep(0.1)
+
+    # Disarming Step
+    print('Disarming the drone...')
+    platform.send_arming_request(False)
+    time.sleep(0.1)
+    
+    log_conf.stop()
+
+
+if __name__ == '__main__':
+    cflib.crtp.init_drivers()
+
+    print(f'Connecting to {URI}...')
+    with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
+        print('Connected!')
+        
+        param_name = 'stabilizer.estimator'
+        
+        print('Waiting for parameters to load...')
+        start_time = time.time()
+        val = None
+        while time.time() - start_time < 5.0:
+            try:
+                val = scf.cf.param.get_value(param_name)
+                break
+            except KeyError:
+                time.sleep(0.1)
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                sys.exit(1)
+        
+        if val is None:
+            print("Error: Timed out waiting for 'stabilizer.estimator' param.")
+            sys.exit(1)
+
+        print(f'Current estimator value: {val}')
+        if int(val) != 1:
+            print('Setting estimator to 1 (Complementary filter)...')
+            scf.cf.param.set_value(param_name, 1)
+            time.sleep(0.5)
+        else:
+            print('Estimator is already set to 1.')
+        
+        # Run the hover test
+        hover_test(scf)
+
+    print('Script finished.')
