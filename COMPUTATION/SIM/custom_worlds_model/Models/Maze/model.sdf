@@ -6,12 +6,12 @@
     <link name="body">
       <visual name="visual">
         <geometry>
-          <mesh><uri>model://maze_model_rs/media/maze.dae</uri></mesh>
+          <mesh><uri>models://maze/media/maze.dae</uri></mesh>
         </geometry>
       </visual>
       <collision name="collision">
         <geometry>
-          <mesh><uri>model://maze_model_rs/media/maze.dae</uri></mesh>
+          <mesh><uri>models://maze/media/maze.dae</uri></mesh>
         </geometry>
       </collision>
     </link>

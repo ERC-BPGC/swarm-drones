@@ -52,7 +52,8 @@ done
 
 # Set simulation world description config file
 if [[ ${swarm} == "true" ]]; then
-  simulation_config="config/world_swarm.yaml"
+  simulation_config="config/swarm_custom.yaml"
+#   simulation_config="config/swarm_custom.yaml"
 else
   simulation_config="config/world.yaml"
 fi

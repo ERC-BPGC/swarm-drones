@@ -1,0 +1,56 @@
+// cpp
+"[cpp]": {
+    "editor.defaultFormatter": "zachflower.uncrustify",
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+    },
+    "editor.formatOnSave": true
+},
+"uncrustify.configPath.linux": "<path-to>/.uncrustify.cfg",
+
+// cpplint
+"cpplint.cpplintPath": "<path-to-bin>/cpplint",
+"cpplint.lineLength": 100,
+"cpplint.verbose": 0,
+"cpplint.filters": [
+    // header guards are user defined
+    "-build/header_guard",
+    // we do allow C++11
+    "-build/c++11",
+    // we consider passing non-const references to be ok
+    "-runtime/references",
+    // we wrap open curly braces for namespaces, classes and functions
+    "-whitespace/braces",
+    // we don't indent keywords like public, protected and private with one space
+    "-whitespace/indent",
+    // we allow closing parenthesis to be on the next line
+    "-whitespace/parens",
+    // we allow the developer to decide about whitespace after a semicolon
+    "-whitespace/semicolon",
+],
+
+// python
+"[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8",
+    "editor.formatOnSave": true,
+},
+"autopep8.args": ["--max-line-length=99", "--ignore=''"],
+
+// ROS2 HUMBLE uses as a linter flake8==4.0.1 (apt installation). Pip installation should be
+// at the same version to avoid errors. pycodestyle==2.8.0 is also required.
+// vscode flake8 extension requires at least flake8 v5.0.0. Pylint extension is used
+// instead with identical configuration.
+"pylint.args": ["--disable=B902,C816,D100,D101,D102,D103,D104,D105,D106,D107,D203,D212,D404,I202",
+                "--max-line-length=99", "--import-order-style=google", "--show-source=true",
+                "--statistics=true"],
+
+"ruff.lineLength": 99,
+"ruff.organizeImports": false,
+"ruff.configuration" : {
+    "format" : {
+        "quote-style" : "single",
+        "line-ending" : "auto",
+    },
+},
+// isort to enforce propper import order
+"isort.args": ["--line-length", "99", "--force-alphabetical-sort-within-sections", "--profile", "black", "--force-sort-within-sections"],

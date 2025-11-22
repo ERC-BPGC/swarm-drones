@@ -62,7 +62,7 @@ done
 
 # Set simulation world description config file
 if [[ ${swarm} == "true" ]]; then
-  simulation_config="config/world_swarm.yaml"
+  simulation_config="config/swarm_custom.yaml"
 else
   simulation_config="config/world.yaml"
 fi
@@ -82,7 +82,7 @@ if [[ ${use_gnome} == "true" ]]; then
 fi
 
 # Launch aerostack2 ground station
-eval "swarmenv && tmuxinator ${tmuxinator_mode} -n ground_station -p tmuxinator/ground_station.yaml \
+eval "tmuxinator ${tmuxinator_mode} -n ground_station -p tmuxinator/ground_station.yaml \
   drone_namespace=${drones_namespace_comma} \
   keyboard_teleop=${keyboard_teleop} \
   rviz=${rviz} \

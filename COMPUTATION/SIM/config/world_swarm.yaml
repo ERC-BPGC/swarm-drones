@@ -1,6 +1,5 @@
+# world_name: "swarm_maze"
 world_name: "empty"
-# world:
-#     sdf: "../worlds/swarm_maze.sdf"
 origin: 
     latitude: 40.337494
     longitude: -3.883197

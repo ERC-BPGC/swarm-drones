@@ -1,0 +1,115 @@
+# world_name: "swarm_maze"
+world_name: "empty"
+origin: 
+    latitude: 40.337494
+    longitude: -3.883197
+    altitude: 100.0
+drones:
+  - model_type: "quadrotor_base"
+    model_name: "drone0"
+    flight_time: 60
+    xyz: [-4.0, 0.0, 0.2]
+    payload:
+      - model_type: "gps"
+        model_name: "gps"
+
+  - model_type: "quadrotor_base"
+    model_name: "drone1"
+    flight_time: 60
+    xyz: [-2.0, 0.0, 0.2]
+    static_transforms:
+    - parent: base_link
+      child: tof_front
+      xyz: [0.1, 0.0, 0.0]     # choose where the sensor is attached
+      rpy: [0.0, 0.0, 0.0]      # its orientation
+    payload:
+      - model_type: "planar_lidar"
+        model_name: "tof_front"
+        samples: 1          # ← only one ray
+        resolution: 1
+        min_angle: 0.0
+        max_angle: 0.0
+        min_range: 0.05
+        max_range: 8.0
+        update_rate: 30
+
+
+  - model_type: "quadrotor_base"
+    model_name: "drone2"
+    flight_time: 60
+    xyz: [0.0, 0.0, 0.2]
+    static_transforms:
+    - parent: base_link
+      child: tof_front
+      xyz: [0.1, 0.0, 0.0]     # choose where the sensor is attached
+      rpy: [0.0, 0.0, 0.0]      # its orientation
+    payload:
+      - model_type: "planar_lidar"
+        model_name: "tof_front"
+        samples: 1          # ← only one ray
+        resolution: 1
+        min_angle: 0.0
+        max_angle: 0.0
+        min_range: 0.05
+        max_range: 8.0
+        update_rate: 30
+
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone3"
+  #   flight_time: 60
+  #   xyz: [2.0, 0.0, 0.2]
+  #   payload:
+  #     - model_type: "gps"
+  #       model_name: "gps"
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone4"
+  #   flight_time: 60
+  #   xyz: [4.0, 0.0, 0.2]
+  #   payload:
+  #     - model_type: "rangefinder"
+  #       model_name: "down_lidar"
+  #       xyz: [0.0, 0.0, -0.05]
+  #       rpy: [0.0, 0.0, 0.0]
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone5"
+  #   flight_time: 60
+  #   xyz: [-4.0, 2.0, 0.2]
+  #   payload:
+  #     - model_type: "gps"
+  #       model_name: "gps"
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone6"
+  #   flight_time: 60
+  #   xyz: [-2.0, 2.0, 0.2]
+  #   payload:
+  #     - model_type: "gps"
+  #       model_name: "gps"
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone7"
+  #   flight_time: 60
+  #   xyz: [0.0, 2.0, 0.2]
+  #   payload:
+  #     - model_type: "gps"
+  #       model_name: "gps"
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone8"
+  #   flight_time: 60
+  #   xyz: [2.0, 2.0, 0.2]
+  #   payload:
+  #     - model_type: "gps"
+  #       model_name: "gps"
+
+  # - model_type: "quadrotor_base"
+  #   model_name: "drone9"
+  #   flight_time: 60
+  #   xyz: [4.0, 2.0, 0.2]
+  #   payload:
+  #     - model_type: "gps"
+  #       model_name: "gps"
+
