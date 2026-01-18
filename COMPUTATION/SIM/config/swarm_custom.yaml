@@ -6,7 +6,7 @@ origin:
     altitude: 100.0
 drones:
   - model_type: "quadrotor_base"
-    model_name: "drone0"
+    model_name: "motherDrone"
     flight_time: 60
     xyz: [-4.0, 0.0, 0.2]
     payload:
@@ -14,7 +14,7 @@ drones:
         model_name: "gps"
 
   - model_type: "quadrotor_base"
-    model_name: "drone1"
+    model_name: "childDrone1"
     flight_time: 60
     xyz: [-2.0, 0.0, 0.2]
     static_transforms:
@@ -35,7 +35,7 @@ drones:
 
 
   - model_type: "quadrotor_base"
-    model_name: "drone2"
+    model_name: "childDrone2"
     flight_time: 60
     xyz: [0.0, 0.0, 0.2]
     static_transforms:

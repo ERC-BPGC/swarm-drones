@@ -143,7 +143,7 @@ class SwarmConductor:
     """Swarm Conductor"""
 
     def __init__(self, drones_ns: List[str], verbose: bool = False,
-                 use_sim_time: bool = False):
+                use_sim_time: bool = False):
         self.drones: dict[int, Dancer] = {}
         for index, name in enumerate(drones_ns):
             path = get_path(index)
